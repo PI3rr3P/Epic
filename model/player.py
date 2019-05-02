@@ -7,6 +7,8 @@ class Player:
 
 	def losePiece(self, piece):
 		self.pieces.remove(piece)
+		if len(self.pieces) == 0:
+			self.status = "die"
 
 	def gainPiece(self, piece):
 		self.pieces.append(piece)
@@ -18,3 +20,10 @@ class Player:
 				piece = elt
 				break
 		return piece
+
+	def get_piece_type(self, kind):
+		all_kind_piece = []
+		for piece in self.pieces:
+			if piece.type == kind:
+				all_kind_piece.append(piece)
+		return all_kind_piece
