@@ -2,6 +2,8 @@ class Board:
 
 	def __init__(self, mapFile):
 		self.map = []
+		self.Xmax = 0
+		self.Ymax = 0
 		self.readMap(mapFile)
 
 	def readMap(self, mapFile):
@@ -9,8 +11,9 @@ class Board:
 		self.map = []
 		with open(mapFile, 'r') as mapTxt:
 			for lines in mapTxt:
+				self.Ymax += 1
+				self.Xmax += len(lines.split())
 				self.map.append( [  word for word in lines.split() if word != '\n'] )
-		# must check is square
 
 	def color(self, pos):
 		""" white = True, black = False """

@@ -1,5 +1,10 @@
 from piece import *
 
+class RulesException(Exception):
+	def __init__(self, expression, message):
+		self.expression = expression
+		self.message = message
+
 class Rules:
 	''' Game logic
 		Check the rules
@@ -34,7 +39,7 @@ class Rules:
 		else :
 			if self.current_piece.isAble(pos): # if arrival position is possible
 				if self.board[x][y][0] != "rock": # if no rock at arrival
-					if self.isFreePath(): # no other piece/stuff on the road
+					if self.isFreePath(self.current_piece, pos): # no other piece/stuff on the road
 						otherPiece = self.get_piece_at(pos)
 						if otherPiece is None: # simple move
 							msg = self.move(pos)
@@ -45,11 +50,11 @@ class Rules:
 			msg["action"] = "impossible"
 		return msg
 
-	def isFreePath(self, pos):
+	def isFreePath(self, piece, pos):
 		''' given the way of moving a piece '''
 		free = True
-		if isinstance(self.current_piece, Knight) == False:
-			path = self.current_piece.generatePath(pos)
+		if isinstance(piece, Knight) == False:
+			path = piece.generatePath(pos)
 			for pos in path[:-1]: # arrival position is questioned latter
 				if self.board[pos[0]][pos[1]][0] is not None: # check if there is a piece on the path
 					free = False
@@ -87,13 +92,16 @@ class Rules:
 		isChecked = False
 		king_pos = self.current_player.get_piece_type("king")
 		if len(king_pos) != 0:
-			# probelem
+			raise RuleException("The current player possess no king")
 		else:
-			king_pos = king_pos[0].pos
-		for plyr in self.players:
-			if plyr != self.current_player:
-				# cant reach that position ? for piece in plyr.pieces: if piece.isAble(king_pos): if self.isFreePath(piece, king_pos): isChecked = True; break;
-					# is it free path ?
+			for pos in king_pos: # case where the current player has sevaral kings
+				for plyr in self.players:
+					if plyr != self.current_player:
+						for piece in plyr.pieces: 
+							if piece.isAble(king_pos): 
+								if self.isFreePath(piece, king_pos): 
+									isChecked = True;
+									break;
 		return isChecked
 
 	def get_piece_at(self, pos):
