@@ -24,6 +24,9 @@ class Piece:
 		''' give the way the piece go, return a serie of position '''
 		return []
 
+	def generateGraphicPath(self, pos):
+		return self.generatePath(pos)
+
 	def __repr__(self):
 		return {'type': self.type, 'color': self.color, 'pos':self.pos}
 
@@ -95,6 +98,12 @@ class Knight(Piece):
 			yield (self.pos[0] + dpos[0], self.pos[1] + dpos[1])
 
 	def generatePath(self, pos):
+		if ( pos[0] - self.pos[0], pos[1] - self.pos[1]) in [ (-2, 1), (-2,-1), (2, -1), (2, 1), (1, 2), (-1, 2), (1, -2), (-1, -2)]:
+			return [pos]
+		else:
+			raise MouvementError("Knight cannot do such move : {} -> {}".format(self.pos, pos))
+
+	def generateGraphicPath(self, pos):
 		(x,y) = self.pos
 		diff = (pos[0] - x, pos[1] - y)
 		if diff == (-2, 1):
