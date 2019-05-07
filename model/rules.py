@@ -18,6 +18,9 @@ class Rules:
 	#		board(s) can be thrown to viewer to plot the game
 	# clean function isAllowedSquare
 	# finish play_piece
+	# satleman rules ?
+	# you had to do something with isAble / isFreePath / isAllowed
+	# ! Imax, Jmax a donner pour que les pieces fournissent des chemins ?
 
 	def __init__(self):
 		self.isEndGame = False
@@ -44,7 +47,7 @@ class Rules:
 
 		msg = None
 		(x,y) = pos
-		if self.isChecked():  # must move king if it is in danger
+		if self.isChecked():  # must change that once piece move
 			msg = []
 		else :
 			if self.current_piece.isAble(pos): # if arrival position is possible
@@ -136,6 +139,51 @@ class Rules:
 					if break_all:
 						break
 		return isChecked
+
+    def isStalemate(self):
+    	''' Two conditions for stalemente
+			King cannot move while being in danger
+			All pieces cannot move
+    	'''
+    	isStalemate = False
+    	isKingBlock = False
+    	if len(self.current_player.piece) != 1:
+		king = self.current_player.get_piece_type("king")
+		if len(king) != 1:
+			raise RuleException("The current player possess no king")
+		# check king is block
+		king = king[0]
+		possible_king_pos = king.possibleSquare()
+		for pos in possible_king_pos:
+			if self.isAllowedSquare(king, pos) == False:
+				possible_king_pos.remove(pos)
+		break_all = False
+		for plyr in [p for p in self.players if p != self.current_player]:
+			for piece in plyr.pieces: 
+				for pos in possible_king_pos:
+					if piece.isAble(pos):
+						if self.isFreePath(piece, pos): 
+							possible_king_pos.remove(pos)
+				if len(possible_king_pos) == 0:
+					isKingBlock = True
+					break_all = True
+					break
+			if break_all:
+				break
+		# check all other pieces
+		if isKingBlock:
+			break_all = False
+			for piece in self.current_player.piece:
+				possible_move = piece.possibleSquare()
+				for pos in possible_move:
+					if self.isAllowedSquare(piece, pos) == True:
+						break_all = True
+						break
+				if break_all:
+					break
+			else:
+				isStalemate = True
+		return isStalemate
 
 	def isCheckMate(self):
 		''' Is the current player checkmate 
